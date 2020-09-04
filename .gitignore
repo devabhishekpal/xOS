@@ -1,5 +1,5 @@
 *.bin
 *.o
 *.iso
-./build
-./cross-compiler
+build/
+cross-compiler/
