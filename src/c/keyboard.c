@@ -1,6 +1,5 @@
 #include "kernel.h"
 
-//Standard keyboard mapping
 unsigned char keyboard_map[128] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
@@ -110,7 +109,7 @@ void keyboard_test(void){
             current_scancode = scancode;
         }
     }
-    pic_acknowledgement(0x21);
+    pic_acknowledge(0x21);
 }
 
 char get_scancode(void){

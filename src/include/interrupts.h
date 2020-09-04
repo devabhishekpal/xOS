@@ -149,8 +149,8 @@ extern void int16(void);
 extern void int17(void);
 extern void int18(void);
 extern void int19(void);
-extern void int21(void);
 extern void int30(void);
+extern void int21(void);
 
 void int_00(void);
 void int_01(void);
@@ -182,21 +182,21 @@ void switch_interrupt_flag(bool on); //Set interrrupt Flag (STI) or Clear Interr
 void pic_acknowledge(unsigned int interrupt);
 void init_interrupts(void);
 
-struct interrupt_stack{
-    unsigned long gs;
-    unsigned long fs;
-    unsigned long es;
-    unsigned long ds;
-    unsigned long edi;
-    unsigned long esi;
-    unsigned long ebp;
-    unsigned long esp;
-    unsigned long ebx;
-    unsigned long edx;
-    unsigned long ecx;
-    unsigned long eax;
-    unsigned int ss;
-    unsigned long useresp;
-    unsigned int cs;
-    unsigned long eip;
+struct interrupt_stack {
+	unsigned long gs;
+	unsigned long fs;
+	unsigned long es;
+	unsigned long ds;
+	unsigned long edi;
+	unsigned long esi;
+	unsigned long ebp;
+	unsigned long esp;
+	unsigned long ebx;
+	unsigned long edx;
+	unsigned long ecx;
+	unsigned long eax;
+	unsigned int ss;
+	unsigned long useresp;
+	unsigned int cs;
+	unsigned long eip;
 };

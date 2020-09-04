@@ -44,6 +44,8 @@ void get_string(char* string, unsigned int size){
     scancode = get_scancode();
     x = 0;
 
+    //printf( "string *: %X\n", (void *)string );
+    
     while( scancode != 0x1C && x != size - 1){
         if(scancode != 0){
             user_char = get_character( (unsigned int)scancode );
@@ -66,7 +68,6 @@ void get_string(char* string, unsigned int size){
                     }
                     string[x] = user_char;
                     x++;
-                    break;
             }
         }
         scancode = get_scancode();
@@ -116,7 +117,7 @@ void update_cursor(int row, int col){
 }
 
 //Tiny printf implementation based on http://www.sparetimelabs.com/tinyprintf/tinyprintf.php
-typedef void (*putcf)(void*, char);
+typedef void (*putcf) (void*,char);
 static putcf stdout_putf;
 static void* stdout_putp;
 static void ui2a(unsigned int num, unsigned int base, int uc,char * bf)
@@ -263,6 +264,7 @@ void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
     abort:;
 }
 
+
 void init_printf(void* putp,void (*putf) (void*,char))
 {
     stdout_putf=putf;
@@ -322,7 +324,7 @@ int strcmp (const char *s1, const char *s2){
             return 0;
         }
     }
-    return *(unsigned char *)s1 < *(unsigned char *)s1 ? -1 : 1;
+    return *(unsigned char *)s1 < *(unsigned char *)s2 ? -1 : 1;
 }
 
 void printfcomma2(int n){

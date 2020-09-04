@@ -1,7 +1,7 @@
 //Basic OS requirements like printf()
 
 
-#define GET_DEFINE_STRING(x)
+#define GET_DEFINE_STRING(x) #x
 #define STRING_VALUE_OF(x) GET_DEFINE_STRING(x)
 
 struct node{
@@ -14,12 +14,12 @@ int list_for_each(struct node* head_ref, int (*func)(struct node* n));
 
 //Output byte to specified hardware port
 static inline void outportb(dword port, byte value){
-    __asm__ __volatile__ ("outb %%al,%%dx"::"d"(port), "a" (value));
+    __asm__ __volatile__ ("outb %%al,%%dx"::"d" (port), "a" (value));
 }
 
 //Output word to port
 static inline void outportw(dword port, dword value){
-    __asm__ __volatile__ ("outw %%ax,%%dx"::"d"(port), "a" (value));
+    __asm__ __volatile__ ("outw %%ax,%%dx"::"d" (port), "a" (value));
 }
 
 //Get a byte from port

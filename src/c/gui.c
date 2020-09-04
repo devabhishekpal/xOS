@@ -51,7 +51,7 @@ void draw_base(void){
 }
 
 void draw_menu(void){
-    gui_write_string("F1 -> Go Multi-Task   |   F2 -> PCI   |   F3 -> Memory Exp", vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK), 1, 0);
+    gui_write_string_at("F1 -> Go Multi-Task   |   F2 -> PCI   |   F3 -> Memory Exp", vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK), 1, 0);
 }
 
 void gui_reset_input(void){
@@ -94,6 +94,6 @@ void gui_put_sting_at(const char *data, size_t size, unsigned char color, unsign
 }
 
 //Gives the data string and its size
-void gui_write_string(const char *data, unsigned char color, unsigned int x, unsigned int y){
+void gui_write_string_at(const char *data, unsigned char color, unsigned int x, unsigned int y){
     gui_put_sting_at(data, strlen(data), color, x, y);
 }

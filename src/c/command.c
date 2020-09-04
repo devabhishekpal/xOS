@@ -39,6 +39,9 @@ int iterate_over_commands(char *command_string){
         struct command *current_command;
         current_command = (struct command*)list->data;
 
+        //printf( "\ncs: \"%s\", trig: \"%s\", loc: 0x%08X\n", command_string, current_command->trigger, current_command->main_function );
+
+
         if(strcmp(current_command->trigger, command_string) == 0){
             void (*function)(void) = current_command->main_func;
             function();

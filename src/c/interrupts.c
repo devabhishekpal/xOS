@@ -17,7 +17,7 @@ void init_interrupts(void){
     load_idtr();
 
     asm("sti");
-    asm("int %0"::"i"(0x30));
+    asm("int %0" : : "i"(0x30));
 }
 
 void interrupt_default_handler(struct interrupt_stack stack){
@@ -33,9 +33,9 @@ void interrupt_default_handler(struct interrupt_stack stack){
             sys_break_handler(&stack);
             break;
         default:
-            printf("Initialized Interrupts\n");
+            printf("Initialized: Interrupts!!!\n");
     }
-    pic_acknowledgement(48);    //Vector48 for interrupt 30 called by interrupt.asm
+    pic_acknowledge(48);    //Vector48 for interrupt 30 called by interrupt.asm
 }
 
 void load_idtr(){
@@ -44,7 +44,7 @@ void load_idtr(){
 
     idtr *IDTRptr = &IDTR;  //Point to Interrupt Descriptor Table
 
-    asm volatile("LIDT (%0)"::"p"(IDTRptr));
+    asm volatile("LIDT (%0) ": : "p"(IDTRptr));
 }
 
 void add_int(int number, void (*handler)(), dword dpl){
@@ -53,7 +53,7 @@ void add_int(int number, void (*handler)(), dword dpl){
     dword offset = (dword)handler;
 
     //Get chip select
-    asm volatile("movw %%cs,%0":"=g"(selector));
+    asm volatile("movw %%cs,%0" :"=g"(selector));
 
     //Set settings from Descriptor Privilege Level (ring level)
     switch(dpl){
@@ -68,7 +68,7 @@ void add_int(int number, void (*handler)(), dword dpl){
     }
 
     //Set the real values
-    IDT[number].low_offset = (offset&0xFFFF); //FFFF = 1111111111111111 for a gate the rearrangement is offset [0...15] goes to [0...15] so normal &ing will give the values
+    IDT[number].low_offset = (offset & 0xFFFF); //FFFF = 1111111111111111 for a gate the rearrangement is offset [0...15] goes to [0...15] so normal &ing will give the values
     IDT[number].selector = selector;
     IDT[number].settings = settings;
     IDT[number].high_offset = (offset >> 16);   //Higher limit shift 16bits right arithmetically as offset[16...31] are rearranged to [48...63]
@@ -121,7 +121,7 @@ void switch_interrupt_flag(bool on){
     }
 }
 
-void pic_acknowledgement(unsigned int interrupt){
+void pic_acknowledge(unsigned int interrupt){
     if(interrupt < 0x28){
         outportb(0x20, 0x20);   //PIC 1
     }
@@ -144,6 +144,9 @@ void panic(char *message, char *code, bool halt){
         printf("\nReally panic!!! System has been HALTED");
         asm("cli\n");   //Clear interrupt flag
         asm("hlt\n");   //Stop the system
+    }
+    else if(halt == false){
+        //asm("hlt");
     }
     outportb(MASTER, EOI); //Send the End of Interrupt command to PIC
 }
@@ -272,7 +275,7 @@ void mask_irq(byte irq){
 
 //Unmasks IRQ to allow firing interrupt
 void unmask_irq(byte irq){
-    if(irq = ALL){
+    if(irq == ALL){
         outportb(MASTERDATA, 0x00);
         outportb(SLAVEDATA, 0x00);
         pic1_irq_mask = 0x00;

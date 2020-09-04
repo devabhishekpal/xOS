@@ -73,7 +73,7 @@ void term_put_char(char c){
         }
         if(term_curr_row == max_row){
             term_curr_row = max_row - 1;
-            for(y = y_start; y < max_row; y++){
+            for(y = y_start; y < max_row - 1; y++){
                 for(x = 0; x < VGA_WIDTH; x++){
                     term_buffer[(y * VGA_WIDTH) + x] = term_buffer[((y+1) * VGA_WIDTH) + x];
                 }

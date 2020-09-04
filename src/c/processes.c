@@ -17,7 +17,7 @@ int current_process;
 //Setup initial processes
 void init_processes(void){
     current_process = 0;
-    printf("Initialize Processes!!!\n");
+    printf("Initialized: Processes!!!\n");
 }
 
 void start_processes(void){
