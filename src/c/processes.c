@@ -17,7 +17,7 @@ int current_process;
 //Setup initial processes
 void init_processes(void){
     current_process = 0;
-    prinf("Initialize Processes!!!\n");
+    printf("Initialize Processes!!!\n");
 }
 
 void start_processes(void){
@@ -28,7 +28,7 @@ void start_processes(void){
     task_a();
 }
 
-void start_ab_process(void){
+void start_ab_test(void){
     load_processes(test_ab_a);
     load_processes(test_ab_b);
 

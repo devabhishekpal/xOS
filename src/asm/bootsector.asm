@@ -51,7 +51,7 @@ section .data
     GDT_END:
 
 section .text
-    global _start:function(_step_two.end - _step_one)
+    global _step_one:function (_step_two.end - _step_one)
     _step_one:
         mov esp, stack_top                          ;move esp segment register to stack top for OS stack
         cli                                         ;clear interrupts

@@ -110,7 +110,7 @@ void keyboard_test(void){
             current_scancode = scancode;
         }
     }
-    pic_acknowledge(0x21);
+    pic_acknowledgement(0x21);
 }
 
 char get_scancode(void){

@@ -35,7 +35,7 @@ void interrupt_default_handler(struct interrupt_stack stack){
         default:
             printf("Initialized Interrupts\n");
     }
-    pic_acknowledge(48);    //Vector48 for interrupt 30 called by interrupt.asm
+    pic_acknowledgement(48);    //Vector48 for interrupt 30 called by interrupt.asm
 }
 
 void load_idtr(){
@@ -141,7 +141,7 @@ void panic(char *message, char *code, bool halt){
     }
     printf("Exception has occurred: %s : %s", message, code);
     if(halt == true){
-        print("\nReally panic!!! System has been HALTED");
+        printf("\nReally panic!!! System has been HALTED");
         asm("cli\n");   //Clear interrupt flag
         asm("hlt\n");   //Stop the system
     }

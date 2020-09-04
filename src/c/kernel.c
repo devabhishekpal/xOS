@@ -3,10 +3,10 @@
 extern void call_c_test(void);
 
 void kernel_main(unsigned long multiboot_magic, multiboot_info_t *multiboot_info){
-    initialize_memory();
+    init_memory();
 
     term_setup();
-    initialize_gui();
+    init_gui();
     
     printf("::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     printf("::::::     '##::::'##::'#######:::'######::     ::::::\n");
@@ -20,10 +20,10 @@ void kernel_main(unsigned long multiboot_magic, multiboot_info_t *multiboot_info
     printf("::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     printf("A custom \"OS\" made with Love by ABHISHEK PAL\n\n");
 
-    initialize_keyboard();
-    initialize_interrupts();
-    initialize_processes();
-    initialize_commands();
+    init_keyboard();
+    init_interrupts();
+    init_processes();
+    init_commands();
 
     printf("Initialized!!!\n");
     printf("    multiboot_magic:    0x%08X\n", multiboot_magic);

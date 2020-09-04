@@ -10,7 +10,7 @@ void list_push(struct node** head_ref, void *new_data, size_t data_size){
     //copy contents of new_data to allocated mem
     unsigned int i;
     for(i = 0; i < data_size; i++){
-        *(char*)(new_node->data + i) = *(char*)(new_data+i)
+        *(char*)(new_node->data + i) = *(char*)(new_data+i);
     }
 
     //Shift head to new_node
@@ -46,7 +46,7 @@ void get_string(char* string, unsigned int size){
 
     while( scancode != 0x1C && x != size - 1){
         if(scancode != 0){
-            user_char = get_char( (unsigned int)scancode );
+            user_char = get_character( (unsigned int)scancode );
             switch (user_char){
                 case 0:
                     break;
@@ -59,10 +59,10 @@ void get_string(char* string, unsigned int size){
                     break;
                 default:
                     if(is_gui_active()){
-                        put_char_at_input_gui(user_char);
+                        gui_put_char_at_input(user_char);
                     }
                     else{
-                        put_char_cui(user_char);
+                        term_put_char(user_char);
                     }
                     string[x] = user_char;
                     x++;
@@ -72,7 +72,7 @@ void get_string(char* string, unsigned int size){
         scancode = get_scancode();
     }
     if(is_gui_active()){
-        reset_input_gui();
+        gui_reset_input();
     }
     string[x] = 0;
 }
@@ -82,7 +82,7 @@ void putc(void *p, char c){
     void *file_to_write_into = p;
 
     file_to_write_into++;
-    put_char_cui(c);
+    term_put_char(c);
 }
 
 //Calc length of null terminated string
@@ -194,7 +194,7 @@ void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
 
     while ((ch=*(fmt++))) {
         if (ch!='%') 
-            putf(putp,ch);http://www.sparetimelabs.com/tinyprintf/tinyprintf.php
+            putf(putp,ch);
         else {
             char lz=0;
 #ifdef  PRINTF_LONG_SUPPORT
@@ -263,7 +263,6 @@ void tfp_format(void* putp,putcf putf,char *fmt, va_list va)
     abort:;
 }
 
-
 void init_printf(void* putp,void (*putf) (void*,char))
 {
     stdout_putf=putf;
@@ -310,11 +309,11 @@ void *memset(void *dest, char val, size_t count){
 
 char *strcpy(char *dest, const char *src){
     unsigned i;
-    for(i = 0; src[i]) != '\0'; ++i){
+    for(i = 0; src[i] != '\0'; ++i){
         dest[i] = src[i];
     }
     dest[i] = '\0'; //Setting last character as null
-    return dest
+    return dest;
 }
 
 int strcmp (const char *s1, const char *s2){
