@@ -53,8 +53,9 @@ void get_string(char* string, unsigned int size){
                 case 0:
                     break;
                 case '\b':          //Backspace
-                    if(x > 1){
+                    if(x > 0){
                         term_clear_last_char();
+                        printf(".");
                         string[x] = '\0';   //NULL
                         x--;    //Decrease index i.e point to previous character
                     }

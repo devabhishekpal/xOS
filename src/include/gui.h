@@ -4,3 +4,8 @@ void gui_reset_input(void);
 bool is_gui_active(void);
 void gui_put_char_at_input(char user_char);
 void gui_update_carret(int row, int col);
+void gui_move_row(unsigned int dest, unsigned int src);
+void gui_clear_last_input_char(void);
+void gui_put_char_at(char c, unsigned int x, unsigned int y);
+void gui_write_string_at(const char *data, unsigned int x, unsigned int y);
+void gui_flip_cursor(void);

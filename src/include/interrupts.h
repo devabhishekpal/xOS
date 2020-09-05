@@ -150,6 +150,7 @@ extern void int17(void);
 extern void int18(void);
 extern void int19(void);
 extern void int30(void);
+extern void int20(void);
 extern void int21(void);
 
 void int_00(void);

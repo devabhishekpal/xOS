@@ -13,3 +13,5 @@
 #include "processes.h"
 #include "command.h"
 #include "multiboot.h"
+#include "vga.h"
+#include "timer.h"

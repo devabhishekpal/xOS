@@ -1,10 +1,10 @@
 ;CONSTS for MULTIBOOT HEADER
-MULTIBOOTALIGN equ 1<<0                             ;Align loaded modules to page bounds
-MULTIBOOTMEMINFO equ 1<<1                           ;Giving a memory map
-MULTIBOOT_VBE_MODE equ 1<<2                         ;Giving the graphics mode
-FLAGS equ MULTIBOOTALIGN | MULTIBOOTMEMINFO         ;Multiboot FLAGS
-MAGIC equ 0x1BADB002                                ;'magic' value to allow finding of header
-CHECKSUM equ -( MAGIC + FLAGS )                     ;CHECKSUM to verify we are multiboot
+MULTIBOOTALIGN equ 1<<0                                                 ;Align loaded modules to page bounds
+MULTIBOOTMEMINFO equ 1<<1                                               ;Giving a memory map
+MULTIBOOT_VBE_MODE equ 1<<2                                             ;Giving the graphics mode
+FLAGS equ MULTIBOOTALIGN | MULTIBOOTMEMINFO | MULTIBOOT_VBE_MODE        ;Multiboot FLAGS
+MAGIC equ 0x1BADB002                                                    ;'magic' value to allow finding of header
+CHECKSUM equ -( MAGIC + FLAGS )                                         ;CHECKSUM to verify we are multiboot
 
 section .multiboot
     align 4                                         ;MULTIBOOT specs require we align to 4bytes i.e offset by 4bytes to page bound
@@ -17,6 +17,11 @@ section .multiboot
         dd 0                                        ;load_end_addr
         dd 0                                        ;bss_end_addr
         dd 0                                        ;entry_addr
+
+        dd 0                                        ;mode_type
+        dd 1280                                     ;width
+        dd 720                                      ;height
+        dd 32                                       ;depth
 
 section .bss
     align 4

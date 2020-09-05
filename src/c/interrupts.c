@@ -5,13 +5,23 @@ x86_interrupt IDT[256];     //(x86_interrupt *)0xD00
 byte pic1_irq_mask;
 byte pic2_irq_mask;
 
-void interrupt_default_handler(struct interrupt_stack stack);
+void interrupt_default_handler(unsigned long route_code, struct interrupt_stack stack);
 
 void init_interrupts(void){
     remap_pic(0x20, 0x28);  //Remaps the PICs so that IRQ0 starts at 0x20 and IRQ8 at 0x28
     mask_irq(ALL);
+    
+    //Using PIT 8253/8254
+    int divisor = 1193180 / 100;    //1193180 is fixed frequency of input clock i.e 1.19Mhz. 100 is the value in Hz which will decide the data rate
+    outportb(0x43, 0x36);   //Set the command byte to 0x36
+    outportb(0x40, divisor & 0xFF); //low byte of divisor
+    outportb(0x40, divisor >> 8);   //high byte of divisor
+    //All the above functions are set with the standard for PIT and the values are defined in any PIT description
+
     load_exceptions();
+    unmask_irq(TIMER);
     unmask_irq(KEYBOARD);
+    add_int(0x20, int20, 0);
     add_int(0x21, int21, 0);
     add_int(0x30, int30, 0);
     load_idtr();
@@ -20,8 +30,13 @@ void init_interrupts(void){
     asm("int %0" : : "i"(0x30));
 }
 
-void interrupt_default_handler(struct interrupt_stack stack){
-    switch (stack.eax){
+void interrupt_default_handler(unsigned long route_code, struct interrupt_stack stack){
+    if(route_code == 0x1001){
+        timer_handler();
+        pic_acknowledge(0x20);
+    }
+    else{
+        switch (stack.eax){
         case 0xBADA:
             printf("Interrupt testing called\n");
             printf( "  eax: 0x%08X \tebx: 0x%08X \tecx: 0x%08X \tedx: 0x%08X\n", stack.eax, stack.ebx, stack.ecx, stack.edx );
@@ -34,8 +49,9 @@ void interrupt_default_handler(struct interrupt_stack stack){
             break;
         default:
             printf("Initialized: Interrupts!!!\n");
+        }
+        pic_acknowledge(48);    //Vector48 for interrupt 30 called by interrupt.asm
     }
-    pic_acknowledge(48);    //Vector48 for interrupt 30 called by interrupt.asm
 }
 
 void load_idtr(){

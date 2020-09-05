@@ -24,6 +24,47 @@ call_c_test:
     int 0x30
     ret
 
+[global int20]
+int20:
+    pusha
+        push ds
+        push es
+        push fs
+        push gs
+            mov eax, 0x10   ;Data segment
+            mov ds, eax
+            mov es, eax
+            mov eax, 0x1001
+            push eax
+                cld
+                call interrupt_default_handler  ;Test Interrupt Handler
+            pop eax
+        pop gs
+        pop fs
+        pop es
+        pop ds
+    popa
+    iret
+
+[global int21]
+int21:
+     pusha
+          push ds
+          push es
+          push fs
+          push gs
+               mov eax,0x10    ; Data segment
+               mov ds,eax
+               mov es,eax
+               cld
+               call keyboard_test   ; Test Interrupt Handler
+          pop gs
+          pop fs
+          pop es
+          pop ds
+     popa
+     iret
+
 [global int30]
 int30:
     pushad
@@ -34,8 +75,11 @@ int30:
             mov eax, 0x10                                       ;Data segment
             mov ds, eax
             mov es, eax
-            cld                                                 ;Clear direction flag
-            call interrupt_default_handler
+            mov eax, 0x0
+            push eax
+                cld                                                 ;Clear direction flag
+                call interrupt_default_handler
+            pop eax
         pop gs
         pop fs
         pop es
@@ -431,24 +475,3 @@ int19:
 ;;;Exceptions 20-31 are Intel Reserved Interrupts
 
 ;;;End of Exceptions/Interrupts
-
-
-
-[global int21]
-int21:
-     pusha
-          push ds
-          push es
-          push fs
-          push gs
-               mov eax,0x10    ; Data segment
-               mov ds,eax
-               mov es,eax
-               cld
-               call keyboard_test   ; Test Interrupt Handler
-          pop gs
-          pop fs
-          pop es
-          pop ds
-     popa
-     iret

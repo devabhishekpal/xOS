@@ -2,7 +2,7 @@ ODIR = ../build
 SDIR = ./
 
 _OBJS_ASM = boot.o interrupts_list.o
-_OBJS_C = memory.o base.o interrupts.o keyboard.o processes.o command.o gui.o term.o kernel.o
+_OBJS_C = multiboot.o memory.o base.o interrupts.o keyboard.o processes.o command.o gui.o term.o kernel.o vga.o timer.o
 _OBJS = $(_OBJS_ASM) $(_OBJS_C)
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 

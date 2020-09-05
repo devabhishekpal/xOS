@@ -33,7 +33,7 @@ void term_setup(void){
 
 void term_setup_gui(void){
     y_start = 1;
-    VGA_HEIGHT = 23;    //Leave a row
+    VGA_HEIGHT = 24;    //Leave a row
     term_curr_row = 1;
 }
 
@@ -44,8 +44,15 @@ void term_set_color(unsigned char color){
 
 //Put character at x,y with color without advancing buffer
 void term_put_char_at(char c, unsigned char color, unsigned int x, unsigned int y){
+    color = 0;
     if(c != '\n'){
-        term_buffer[(y*VGA_WIDTH) + x] = vga_entry(c, color);
+        
+        if(is_gui_active()){
+            gui_put_char_at(c, x, y);
+        }
+        else{
+            term_buffer[(y*VGA_WIDTH) + x] = vga_entry(c, color);
+        }
     }
 }
 
@@ -74,17 +81,24 @@ void term_put_char(char c){
         if(term_curr_row == max_row){
             term_curr_row = max_row - 1;
             for(y = y_start; y < max_row - 1; y++){
-                for(x = 0; x < VGA_WIDTH; x++){
-                    term_buffer[(y * VGA_WIDTH) + x] = term_buffer[((y+1) * VGA_WIDTH) + x];
+                if(is_gui_active()){
+                    gui_move_row(y, y + 1);
+                }
+                else{
+                    for(x = 0; x < VGA_WIDTH; x++){
+                        term_buffer[(y * VGA_WIDTH) + x] = term_buffer[((y+1) * VGA_WIDTH) + x];
+                    }
                 }
             }
-            //Disable GUI check for now
-            //if( ! is_gui_active() ) {
-				for( x = 0; x < VGA_WIDTH; x++ ) {
-					const size_t index = (VGA_HEIGHT - 1) * VGA_WIDTH + x;
-					term_buffer[index] = vga_entry(' ', term_curr_color );
-				}
-			//}
+			for( x = 0; x < VGA_WIDTH; x++ ) {
+				if(is_gui_active()){
+                    gui_put_char_at(' ', x, VGA_HEIGHT - 1);
+                }
+                else{
+                    const size_t index = (VGA_HEIGHT - 1) * VGA_WIDTH + x;
+				    term_buffer[index] = vga_entry(' ', term_curr_color );
+                }
+			}
         }
     }
     update_cursor(term_curr_row, term_curr_col);
@@ -92,9 +106,14 @@ void term_put_char(char c){
 
 void term_clear_last_char(void){
     int term_new_col = term_curr_col - 1; //Move postion one space behind
-    if(term_new_col > 1){
-        term_put_char_at(' ', term_curr_color, term_new_col, term_curr_row);    //Fill the col with blank char
-        term_curr_col = term_new_col;
+    if(is_gui_active()){
+        gui_clear_last_input_char();
+    }
+    else{
+        if(term_new_col > 0){
+            term_put_char_at(' ', term_curr_color, term_new_col, term_curr_row);    //Fill the col with blank char
+            term_curr_col = term_new_col;
+        }
     }
     update_cursor(term_curr_row, term_curr_col);
 }

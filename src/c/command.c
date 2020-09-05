@@ -77,6 +77,7 @@ void cmd_print_sizes(void){
 }
 
 void cmd_list_commands(void){
+    printf("\n\n");
     list_for_each(command, &cmd_list_commands_print);
     printf("\n");
 }
