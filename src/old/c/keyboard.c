@@ -126,4 +126,3 @@ char get_character(unsigned int scancode){
     }
     return keyboard_map[scancode];
 }
-

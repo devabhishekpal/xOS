@@ -9,6 +9,13 @@ unsigned int _bg_color;
 bool render_bg;
 
 bool _is_vga_active = false;
+
+uint8_t *prev_mouse_data;
+unsigned int prev_mouse_x;
+unsigned int prev_mouse_y;
+bool is_first_time_drawn;
+
+
 vga_info _vga_info;
 
 void init_vga(void){
@@ -21,13 +28,21 @@ void init_vga(void){
        _vga_info.pixel_width = _vga_info.pitch / _vga_info.width;
        _vga_info.fbuffer = (unsigned char *)multiboot_info->framebuffer_addr;
 
+       _vga_info.char_height = 14;
+       _vga_info.char_width = 7;
+       _vga_info.fg_color = 0x000000;
+       _vga_info.bg_color = 0xFFFFFF;
+       
        _charac_height = 14;  //All characters are 8x8 pixels so 8bits used
        _charac_width = 7;
        _screen_border = 10;
 
-       _bg_color = xo_white;
-       _fg_color = black;
+       _bg_color = 0xFFFFFF;
+       _fg_color = 0x000000;
        render_bg = true;
+
+       prev_mouse_data = malloc(sizeof(uint8_t) + (14 * 3 * 4 * 8));
+       is_first_time_drawn = true;
 
        fillrect(_vga_info.fbuffer, _bg_color, 0, 0, 1280, 720);
        _is_vga_active = true;
@@ -76,10 +91,10 @@ void vga_move_line(unsigned int dest_y, unsigned int src_y){
 }
 
 void vga_put_char(unsigned char c, unsigned int x, unsigned int y){
-       draw_char(_vga_info.fbuffer, _screen_border + (x * _charac_width), _screen_border + (y * _charac_height), black, c);
+       draw_char(_vga_info.fbuffer, _screen_border + (x * _charac_width), _screen_border + (y * _charac_height), _vga_info.fg_color, _vga_info.bg_color, c);
 }
 
-inline void putpixel(unsigned char *screen, unsigned int x, unsigned int y, int color){
+inline void putpixel(uint8_t *buffer, unsigned int x, unsigned int y, int color){
        unsigned int pos = (x * _vga_info.pixel_width) + (y * _vga_info.width * _vga_info.pixel_width);
 
        /*
@@ -114,73 +129,92 @@ inline void putpixel(unsigned char *screen, unsigned int x, unsigned int y, int 
        * 
        * which infact we again see is yellow (#fff700) in RGB(255,247,0)
        */
-       screen[pos] = color & 255;   //B
-       screen[pos+1] = (color>>8) & 255; //G
-       screen[pos+2] = (color>>16) & 255; //R
+       buffer[pos] = color & 255;   //B
+       buffer[pos+1] = (color>>8) & 255; //G
+       buffer[pos+2] = (color>>16) & 255; //R
 }
 
-inline void fillrect(unsigned char *vram, unsigned int color, unsigned int x, unsigned int y, unsigned int w, unsigned int h){
-       unsigned char *pos = vram;
-       unsigned int offset = (x * _vga_info.pixel_width) + (y * _vga_info.width * _vga_info.pixel_width);
-       int i,j;
+void draw_rect(rect r, unsigned int color){
+       fillrect(_vga_info.fbuffer, color, r.x, r.y, r.w, r.h);
+}
+
+inline void fillrect(uint8_t *buffer, uint32_t color, unsigned int x, unsigned int y, unsigned int w, unsigned int h){
+       uint8_t *pos = (buffer + (x * _vga_info.pixel_width) + (y * _vga_info.width * _vga_info.pixel_width));
+       unsigned int i,j;
 
        for(i = 0; i < h; i++){
               for(j = 0; j < w; j++){
-                     pos[offset + (j * _vga_info.pixel_width)] = color & 255;  //B
-                     pos[offset + (j * _vga_info.pixel_width + 1)] = (color>>8) & 255;       //G
-                     pos[offset + (j * _vga_info.pixel_width + 2)] = (color>>16) & 255;      //R
+                     *(uint32_t *)(pos + (j * _vga_info.pixel_width)) = color;
               }
               pos += _vga_info.pitch;
        }
 }
 
-void draw_string(char *string, unsigned int x, unsigned int y, unsigned int color){
+void draw_string(char *string, unsigned int x, unsigned int y, unsigned int fg_color, unsigned int bg_color){
        unsigned int offset;
        offset = 0;
        while (*string){
-              draw_char(_vga_info.fbuffer, x + offset * 8, y, color, *string);
-
-              offset++;
+              draw_char(_vga_info.fbuffer, x, y, fg_color, bg_color, *string);
+              x += 7;
               string++;
        }      
 }
 
-inline void draw_char(unsigned char *screen, unsigned int x, unsigned int y, unsigned int color, unsigned int font_char){
-       int row;
-       int col;
-       /*
-       for(row = 0; row < 8; row++){
-              for(col = 8; col > -1; col--){
-                     if(font_char[row] & (1<<col)){
-                            putpixel(screen, x + col, y + row, color);
+inline void draw_char(uint8_t *buffer, unsigned int x, unsigned int y, uint32_t fg, uint32_t bg, unsigned int font_char){
+       int row, col;
+       uint8_t *pos = (buffer + (x * _vga_info.pixel_width) + (y * _vga_info.width * _vga_info.pixel_width));
+
+       for(row = 0; row < 14; row++){
+              for(col = 7; col > -1; col--){
+                     if((_tamzen_bits[_tamzen_offset[font_char] + row]>>8 & (1<<col))){
+                            *(uint32_t *)(pos + (7 - col) * _vga_info.pixel_width) = fg;
                      }
                      else{
                             if(render_bg){
-                                   putpixel(screen, x + col, y + row, _bg_color);
+                                   *(uint32_t *)(pos + (7 - col) * _vga_info.pixel_width) = bg;
                             }
                      }
               }
-       }*/
+              pos += _vga_info.pitch;
+       }
+}
 
-       /* Alternative for a long font */
-       unsigned char font_bits;
+void draw_mouse(unsigned int x, unsigned int y){
+       unsigned int i = 0;
+       int row, col;
+       uint8_t *mem_dest;
+       uint8_t *mem_src;
+       unsigned int mem_size;
+       uint8_t *pos = (_vga_info.fbuffer + (x * _vga_info.pixel_width) + (y * _vga_info.width * _vga_info.pixel_width));
 
-       for (row = 0; row < 14; row++) {
-    	       if(font_char == 255){
-                     font_bits = char_block[0 + row] >> 8;
-              }
-              else{
-                     font_bits = _tamzen_bits[_tamzen_offset[font_char] + row] >> 8;
-              }
-              for (col = 7; col > -1; col--) {
-                     if((font_bits & (1 << col))) {
-                     putpixel(screen, x + 7 - col, y + row, color);
-                     }
-                     else {
-                            if(render_bg) {
-                                   putpixel(screen, x + 7 - col, y + row, _bg_color);
-                            }
+       //Change buffer to what it was before placement
+       if(!is_first_time_drawn){
+              for(i = 0; i < 14; i++){
+                     mem_dest = _vga_info.fbuffer + (prev_mouse_x * _vga_info.pixel_width) + ((prev_mouse_y + 1) * _vga_info.pitch);
+                     mem_src = prev_mouse_data + (i * (8 * _vga_info.pixel_width));
+                     mem_size = (_vga_info.pixel_width * 8);
+
+                     for(; mem_size != 0; mem_size--){
+                            *mem_dest++ = *mem_src++;
                      }
               }
        }
+
+       //Take buffer value to new place and save it
+       for(i = 0; i< 14; i++){
+              mem_src = _vga_info.fbuffer + (x * _vga_info.pixel_width) + ((y + i) * _vga_info.pitch);
+              mem_dest = prev_mouse_data + (i * (8 * _vga_info.pixel_width));
+              mem_size = (_vga_info.pixel_width * 8);
+
+              for(; mem_size != 0; mem_size--){
+                     *mem_dest++ = *mem_src++;
+              }
+       }
+
+       draw_char(_vga_info.fbuffer, x, y, color_xo_white, color_black, '*');
+
+       //Save data for future
+       prev_mouse_x = x;
+       prev_mouse_y = y;
+       is_first_time_drawn = false;
 }

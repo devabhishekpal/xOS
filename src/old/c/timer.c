@@ -17,4 +17,5 @@ void timer_handler(void){
     else{
         blink_count++;
     }
+    pic_acknowledge(0x20);
 }

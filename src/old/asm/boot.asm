@@ -1,8 +1,15 @@
 ;CONSTS for MULTIBOOT HEADER
+
+global _step_one:function (_step_two.end - _step_one)
+extern kernel_main
 MULTIBOOTALIGN equ 1<<0                                                 ;Align loaded modules to page bounds
 MULTIBOOTMEMINFO equ 1<<1                                               ;Giving a memory map
 MULTIBOOT_VBE_MODE equ 1<<2                                             ;Giving the graphics mode
-FLAGS equ MULTIBOOTALIGN | MULTIBOOTMEMINFO | MULTIBOOT_VBE_MODE        ;Multiboot FLAGS
+%if D_ENABLE_GRAPHICS = 1
+    FLAGS equ MULTIBOOTALIGN | MULTIBOOTMEMINFO | MULTIBOOT_VBE_MODE        ;Multiboot FLAGS
+%else
+    FLAGS equ MULTIBOOTALIGN | MULTIBOOTMEMINFO
+%endif
 MAGIC equ 0x1BADB002                                                    ;'magic' value to allow finding of header
 CHECKSUM equ -( MAGIC + FLAGS )                                         ;CHECKSUM to verify we are multiboot
 
@@ -17,11 +24,12 @@ section .multiboot
         dd 0                                        ;load_end_addr
         dd 0                                        ;bss_end_addr
         dd 0                                        ;entry_addr
-
-        dd 0                                        ;mode_type
-        dd 1280                                     ;width
-        dd 720                                      ;height
-        dd 32                                       ;depth
+        %if D_ENABLE_GRAPHICS = 1
+            dd 0                                        ;mode_type
+            dd 1280                                     ;width
+            dd 720                                      ;height
+            dd 32                                       ;depth
+        %endif
 
 section .bss
     align 4
@@ -56,7 +64,6 @@ section .data
     GDT_END:
 
 section .text
-    global _step_one:function (_step_two.end - _step_one)
     _step_one:
         mov esp, stack_top                          ;move esp segment register to stack top for OS stack
         cli                                         ;clear interrupts
@@ -75,7 +82,6 @@ section .text
     _step_two:
         push ebx
         push eax
-        extern kernel_main
         call kernel_main
 
         cli

@@ -50,7 +50,7 @@ void interrupt_default_handler(unsigned long route_code, struct interrupt_stack 
         default:
             printf("Initialized: Interrupts!!!\n");
         }
-        pic_acknowledge(48);    //Vector48 for interrupt 30 called by interrupt.asm
+        pic_acknowledge(48);
     }
 }
 

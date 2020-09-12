@@ -1,20 +1,3 @@
-static unsigned long char_block[] = {
-   0x0000,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0xFF00,
-   0x0000,
-};
-
 /* Font character bitmap data. */
 static unsigned long _tamzen_bits[] = {
 

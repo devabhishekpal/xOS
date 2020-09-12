@@ -10,7 +10,6 @@ global call_c_test
 extern call_asm_test
 extern interrupt_default_handler
 extern keyboard_test
-
 section .text
 
 global sys_break

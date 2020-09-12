@@ -55,27 +55,19 @@ void get_string(char* string, unsigned int size){
                 case '\b':          //Backspace
                     if(x > 0){
                         term_clear_last_char();
-                        printf(".");
                         string[x] = '\0';   //NULL
                         x--;    //Decrease index i.e point to previous character
                     }
                     break;
                 default:
-                    if(is_gui_active()){
-                        gui_put_char_at_input(user_char);
-                    }
-                    else{
-                        term_put_char(user_char);
-                    }
+                    term_put_char(user_char);
                     string[x] = user_char;
                     x++;
             }
         }
         scancode = get_scancode();
     }
-    if(is_gui_active()){
-        gui_reset_input();
-    }
+    printf("\n");
     string[x] = 0;
 }
 
@@ -114,6 +106,9 @@ void update_cursor(int row, int col){
         //HIGH port to VGA index register
         outportb(0x3D4, 0x0E);
         outportb(0x3D5, (unsigned char)((pos>>8)&0xFF));
+    }
+    else{
+        gui_update_carret();
     }
 }
 

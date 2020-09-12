@@ -6,6 +6,7 @@
 #include "types.h"
 #include "base.h"
 #include "term.h"
+#include "vga.h"
 #include "gui.h"
 #include "interrupts.h"
 #include "memory.h"
@@ -13,5 +14,4 @@
 #include "processes.h"
 #include "command.h"
 #include "multiboot.h"
-#include "vga.h"
 #include "timer.h"
