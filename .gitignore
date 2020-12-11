@@ -1,7 +1,5 @@
 *.bin
 *.o
 *.iso
-src/c/build.num
-build_and_run.sh
 build/
 cross-compiler/
